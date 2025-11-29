@@ -1,0 +1,55 @@
+1. Generator / Subject Model
+
+Purpose: The AI being tested.
+Role: Produces outputs for tasks like OCR, reasoning, coding, or summarization.
+Example: tngtech/deepseek-r1t2-chimera:free generating OCR-parsed text.
+
+
+
+2. Judge / Evaluator Model
+
+Purpose: Scores or evaluates outputs of the generator.
+Role: Assesses accuracy, completeness, reasoning quality, format, bias, etc.
+Example: GPT-4o-mini evaluating OCR or reasoning outputs independently.
+
+
+
+3. Reference / Ground Truth Model
+
+Purpose: Provides the “correct” answer or ideal reference output.
+Role: Acts as a baseline for comparison to generator outputs.
+Example: Verified human-annotated OCR results or expert solutions. // source from input
+
+
+
+
+4. Rate-Limiter / Controller
+
+Purpose: Controls the pacing of requests to avoid API throttling.
+Role: Implements adaptive backoff, concurrency limits, queues, and request tracking.
+Example: Adaptive exponential backoff, per-model limiter, sliding window tracking.
+
+
+
+5. Synthesizer / Multi-Model Combiner (Optional)
+
+Purpose: Combines outputs from multiple generators.
+Role: Produces a unified output for judging or identifies disagreements between models.
+Example: Merging OCR outputs from DeepSeek and Tesseract before scoring.
+
+
+
+6. Validator / Schema Checker
+
+Purpose: Ensures the output format and content are correct.
+Role: Checks JSON keys, types, value ranges, grammar, or hallucinations.
+Example: Confirming OCR output is _{"store":"..."}_ and all fields exist.
+
+
+
+
+7. Analyzer / Statistics Engine
+
+Purpose: Aggregates and analyzes results.
+Role: Measures consistency, variance, prompt sensitivity, bias, token efficiency, and cost-effectiveness.
+Example: Computing averages, standard deviations, performance over multiple runs.

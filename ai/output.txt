@@ -1,0 +1,218 @@
+
+
+Based on the comprehensive requirements, I'll design a structured JSON test suite for OCR/document parsing tasks following your evaluation framework. Here's the complete template:
+
+```json
+{
+  "test_suite": {
+    "metadata": {
+      "name": "Full-Spectrum OCR Parsing Evaluation",
+      "version": "1.1",
+      "rating_system": "0-10 scale across 5 dimensions",
+      "evaluator": "GPT-4o-mini",
+      "rate_limiting": {
+        "strategy": "adaptive exponential backoff",
+        "initial_delay": 1,
+        "max_delay": 60,
+        "max_attempts": 10,
+        "timeout": 180,
+        "concurrency": "single-threaded"
+      }
+    },
+    "test_categories": [
+      {
+        "category": "Invoice Parsing",
+        "tasks": [
+          {
+            "id": "INV-001",
+            "prompt": "Extract all structured information from this invoice. Output only valid JSON.",
+            "input": "Invoice No: INV-003941\nCustomer: Redline Furniture Co.\nAddress: 19 Hudson St, Boston, MA\nItems:\n  - Oak Desk | 1 | $349.00\n  - Leather Chair | 2 | $199.00\nTax: $58.20\nTotal: $805.20",
+            "expected_fields": ["invoice_number", "customer", "address", "line_items", "tax", "total", "currency"],
+            "evaluation_criteria": {
+              "accuracy": {"weight": 0.35},
+              "completeness": {"weight": 0.25},
+              "format": {"weight": 0.20},
+              "reasoning": {"weight": 0.10},
+              "error_handling": {"weight": 0.10}
+            }
+          },
+          {
+            "id": "INV-002",
+            "prompt": "Parse the following invoice into structured JSON. Include line items, totals, tax rate, and currency.",
+            "input": "<invoice>\nNo: 4102-FF\nDate: 2023/09/19\nItem: Printer Paper (5 boxes) - $125.00\nItem: Toner Cartridge - $89.00\nSubtotal: $214.00\nTax: 8%\nTotal: $231.12\n</invoice>",
+            "expected_fields": ["invoice_number", "date", "line_items", "subtotal", "tax_rate", "total", "currency"],
+            "complexity": "requires tax rate calculation"
+          }
+        ]
+      },
+      {
+        "category": "Receipt Parsing",
+        "tasks": [
+          {
+            "id": "REC-001",
+            "prompt": "Extract the items, quantities, and prices from this receipt. Output as JSON.",
+            "input": "WAL-MART\nMilk 2L         3.49\nEggs 12pk       2.79\nBananas 1.2kg   1.43\nTOTAL           7.71",
+            "challenge": "quantity/unit extraction",
+            "hidden_test": "currency inference (USD)"
+          },
+          {
+            "id": "REC-002",
+            "prompt": "Convert this receipt into structured JSON. Guess currency if missing.",
+            "input": "STORE 552\nBread   1   2.50\nSoda    2   1.25\nTOTAL       5.00",
+            "expected_fields": ["store", "items", "total", "currency"]
+          }
+        ]
+      },
+      {
+        "category": "OCR Correction",
+        "tasks": [
+          {
+            "id": "OCR-001",
+            "prompt": "Here is OCR text. Identify errors and correct them.",
+            "input": "'Banams 1.2kg - $1.43'",
+            "expected_corrections": ["Banams → Bananas"],
+            "error_types": ["character misrecognition"]
+          },
+          {
+            "id": "OCR-002",
+            "prompt": "The OCR produced possible misread characters. Fix them and explain the corrections.",
+            "input": "'0range Juiqe 2L - S2.99'",
+            "expected_corrections": ["0range → Orange", "Juiqe → Juice", "S2.99 → $2.99"],
+            "reasoning_required": true
+          }
+        ]
+      },
+      {
+        "category": "Table Extraction",
+        "tasks": [
+          {
+            "id": "TBL-001",
+            "prompt": "Convert this table into JSON rows:",
+            "input": "Name | Score | Grade\nJohn | 88    | B\nAmy  | 94    | A\nLou  | 72    | C",
+            "expected_structure": "array of objects",
+            "data_types": {"Score": "number"}
+          },
+          {
+            "id": "TBL-002",
+            "prompt": "Parse this table into structured JSON. Infer header names if unclear.",
+            "input": "A  | 10\nB  | 15\nC  | 12",
+            "complexity": "header inference required",
+            "acceptance_criteria": ["column name guessing", "data typing"]
+          }
+        ]
+      }
+    ],
+    "evaluation_process": {
+      "dimensions": [
+        {
+          "name": "Accuracy",
+          "description": "Factual correctness of extracted data",
+          "examples": [
+            "Correct numerical values",
+            "Proper string captures",
+            "Accurate tax calculations"
+          ]
+        },
+        {
+          "name": "Completeness",
+          "description": "All required fields present",
+          "examples": [
+            "Contains all line items",
+            "Includes metadata (invoice#/date)",
+            "Has currency information"
+          ]
+        },
+        {
+          "name": "Format Compliance",
+          "description": "Adherence to output specifications",
+          "examples": [
+            "Valid JSON syntax",
+            "Correct nesting structure",
+            "Appropriate data types"
+          ]
+        },
+        {
+          "name": "Reasoning Quality",
+          "description": "Logic in handling ambiguities",
+          "examples": [
+            "Quantity/unit separation",
+            "Currency inference",
+            "Error correction rationale"
+          ]
+        },
+        {
+          "name": "Error Handling",
+          "description": "Graceful recovery from OCR errors",
+          "examples": [
+            "Character misrecognition correction",
+            "Pattern recognition in damaged input",
+            "Context-based reconstructions"
+          ]
+        }
+      ],
+      "normalization_rules": {
+        "scale": "0-10",
+        "weighted_average": true,
+        "partial_credit": {
+          "field_errors": "-0.5 per missing field",
+          "format_errors": "-2 for invalid JSON",
+          "calculation_errors": "-3 for math mistakes"
+        }
+      }
+    }
+  }
+}
+```
+
+**Key Features of This Test Suite:**
+
+1. **Multi-Dimensional Assessment**
+   - Covers all requested categories: invoices, receipts, OCR, tables
+   - Tests both explicit and inferred data extraction
+   - Includes error correction challenges
+
+2. **Structured Evaluation Framework**
+   - Clear 0-10 scoring across 5 dimensions
+   - Weighted importance of different criteria
+   - Partial credit system for nuanced grading
+
+3. **Real-World OCR Challenges**
+   - Character misrecognition tests ('0' vs 'O')
+   - Currency symbol ambiguity ('S' vs '$')
+   - Quantity/unit parsing challenges
+
+4. **Comprehensive Metadata**
+   - Detailed rate limiting specifications
+   - Expected fields for each task type
+   - Hidden tests for inference capabilities
+
+5. **Normalization Rules**
+   - Transparent scoring adjustments
+   - Different penalties for different error types
+   - Weighted average for final score
+
+6. **Adaptive Testing Design**
+   - Varying complexity levels within categories
+   - Mix of straightforward and inference tasks
+   - Pattern recognition requirements
+
+**Usage Instructions:**
+
+1. Run each test through the model with specified rate limiting
+2. Capture raw JSON outputs
+3. Submit model responses to GPT-4o-mini evaluator with:
+   ```json
+   {
+     "response": "[MODEL OUTPUT]",
+     "test_case": "[TEST ID]",
+     "evaluation_rubric": "[RELEVANT CRITERIA]"
+   }
+   ```
+4. Aggregate scores across all dimensions
+5. Generate comparative analysis reporting on:
+   - Category-specific performance
+   - Common error patterns
+   - Format compliance rates
+   - Inference capabilities
+
+This suite provides both quantitative scoring and qualitative insights into model capabilities for real-world document processing tasks.

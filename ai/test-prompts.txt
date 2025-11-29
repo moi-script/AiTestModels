@@ -1,0 +1,116 @@
+1. A Full-Spectrum Test Suite
+The benchmark isn't just a single pop quiz. It’s more like a decathlon, covering:
+
+
+Math Whizzes: Can they solve those tricky train meeting point problems?
+Deep Thinkers: How well do they analyze something complex, like "Element X"?
+Code Monkeys: Can they whip up a palindrome checker?
+Pattern Spotters: Are they good at deciphering letter sequences?
+Knowledge Banks: What do they know about black holes?
+Ethical Navigators: How do they reason about AI bias in loan systems?
+2. Clever Rate Limiting
+Even Openrouter's free models have drawbacks in the form of rate limits. I couldn't just keep bombing messages at their API, as that was a sure fire way to be hit with limits. So to keep things running smoothly, the tool has an adaptive rate limiting system:
+
+Starts with a 1-second pause.
+If it hits a wall, it backs off exponentially (doubling the wait time).
+Maxes out at a 60-second pause.
+Tries up to 10 times for each request.
+Gives up on a single request after 180 seconds.
+Rate limits are usually Request Per Minute (RPM) so there was no point backing off beyond the 60s mark. I did also learn a hard lesson that less can sometimes be more. In my eagerness to complete all of the tests the app was originally multi-threaded, but I quickly realised this WAS a sure fire way to be rate limited.
+
+3. Fair and Square Judging
+Every response gets a score based on:
+
+
+Accuracy: Did it get the answer right?
+Completeness: Was anything important left out?
+Format Savvy: Did it follow instructions on how to answer?
+Reasoning Quality: How good was the explanation?
+Scores are all normalised to a 0-10 scale.
+The Judging Process
+To keep things unbiased, I enlisted GPT-4o-mini as an independent evaluator. It was asked to evaluate the responses in a number of areas:
+
+
+A detailed "why" behind the score.
+An error breakdown if things went wrong.
+The core criteria for judging were:
+Factual correctness.
+Thoroughness of the answer.
+Logical flow.
+Sticking to the task's rules.
+Clarity of explanation.
+A numerical score (0-10).
+
+
+// creating a model test for parsing OCR , json form, table, receipt  
+
+
+-- Real-World Applied Tasks
+Extract all structured information from this invoice. Output only valid JSON.
+
+---INVOICE---
+Invoice No: INV-003941
+Customer: Redline Furniture Co.
+Address: 19 Hudson St, Boston, MA
+Items:
+  - Oak Desk | 1 | $349.00
+  - Leather Chair | 2 | $199.00
+Tax: $58.20
+Total: $805.20
+-----------------
+
+
+Parse the following invoice into structured JSON. Include line items, totals, tax rate, and currency.
+<invoice>
+No: 4102-FF
+Date: 2023/09/19
+Item: Printer Paper (5 boxes) - $125.00
+Item: Toner Cartridge - $89.00
+Subtotal: $214.00
+Tax: 8%
+Total: $231.12
+</invoice>
+
+
+Receipt Parsing
+
+Extract the items, quantities, and prices from this receipt. Output as JSON.
+
+WAL-MART
+Milk 2L         3.49
+Eggs 12pk       2.79
+Bananas 1.2kg   1.43
+TOTAL           7.71
+
+Convert this receipt into structured JSON. Guess currency if missing.
+
+STORE 552
+Bread   1   2.50
+Soda    2   1.25
+TOTAL       5.00
+
+OCR Consistency Check
+
+Here is OCR text. Identify errors and correct them.
+
+'Banams 1.2kg - $1.43'
+
+The OCR produced possible misread characters. Fix them and explain the corrections.
+
+'0range Juiqe 2L - S2.99'
+
+
+Table Extraction
+
+Convert this table into JSON rows:
+
+Name | Score | Grade
+John | 88    | B
+Amy  | 94    | A
+Lou  | 72    | C
+
+Parse this table into structured JSON. Infer header names if unclear.
+
+A  | 10
+B  | 15
+C  | 12
